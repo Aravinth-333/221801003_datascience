@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mentor</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .accept-button {
+            background-color: lightgreen;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .reject-button {
+            background-color: lightcoral;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .disabled {
+            background-color: #d3d3d3; /* Grey out color */
+            pointer-events: none; /* Disable all mouse events */
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+        .dropdown-content a {
+            color: black;
+            padding: 10px 16px;
+            text-decoration: none;
+            display: block;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        .dropdown-content a:hover {
+            background-color: #ddd;
+        }
+        /* body{
+            background-image:url(rec.jpg);
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+        } */
+    </style>
+</head>
+<body>
+
+     <!-- Dropdown menu -->
+     <div class="dropdown">
+        <button>Options</button>
+        <div class="dropdown-content">
+            <a href="#formSubmission" onclick="showSection('formSubmission')">Form Submission</a>
+            <a href="#certificateValidation" onclick="showSection('certificateValidation')">Certificates Validation</a>
+        </div>
+    </div>
+    <div id="formSubmission" class="hidden-section">
+    <h1>$Mentor Name</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Register No</th>
+                <th>CGPA</th>
+                <th>Event Start Date</th>
+                <th>Event End Date</th>
+                <th>College Name</th>
+                <th>Brochure</th>
+                <th>Verified Email</th>
+                <th>Number of ODs Taken</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="userTableBody">
+            <!-- User data will be inserted here -->
+        </tbody>
+    </table>
+    </div>
+
+    <div id="certificateValidation" class="hidden-section">
+        <h1>Mentor Name - Certificates Validation</h1>
+        <!-- Additional content for Certificates Validation -->
+        <p>Certificates validation content will go here.</p>
+    </div>
+    <script>
+
+function showSection(sectionId) {
+            // Hide both sections initially
+            document.getElementById('formSubmission').classList.remove('visible-section');
+            document.getElementById('certificateValidation').classList.remove('visible-section');
+            document.getElementById('formSubmission').classList.add('hidden-section');
+            document.getElementById('certificateValidation').classList.add('hidden-section');
+            
+            // Show the selected section
+            document.getElementById(sectionId).classList.add('visible-section');
+            document.getElementById(sectionId).classList.remove('hidden-section');
+        }
+        function formatDate(dateString) {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+        return 'N/A';
+    }
+
+    // Array of month names
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    
+    // Get day, month, year, hours, and minutes
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+
+    let hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const ampm = hours >= 12 ? 'p.m.' : 'a.m.';
+    
+    hours = hours % 12;
+    hours = hours ? hours : 12; // the hour '0' should be '12'
+    
+    return `${day}-${month}-${year} ${hours}:${minutes} ${ampm}`;
+}
+
+
+        async function fetchStudents() {
+            try {
+                const response = await fetch('http://localhost:3001/getStudents');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const students = await response.json();
+                console.log('Fetched students:', students); // Log data for debugging
+
+                const tableBody = document.getElementById('userTableBody');
+                
+                tableBody.innerHTML = ''; // Clear existing rows
+
+                
+                students.sort((a, b) => {
+                    const statusA = localStorage.getItem(`student_${a._id}`);
+                    const statusB = localStorage.getItem(`student_${b._id}`);
+                    if (statusA === 'accepted') return 1;
+                    if (statusA === 'rejected') return 1;
+                    if (statusB === 'accepted') return -1;
+                    if (statusB === 'rejected') return -1;
+                    return 0; // This handles 'pending' and 'pending' which are equal
+                });
+                
+                students.forEach(student => {
+                    const row = document.createElement('tr');
+                    row.dataset.id = student._id; // Add student ID to row data
+
+                    // Retrieve the status from localStorage
+            const storedStatus = localStorage.getItem(`student_${student._id}`);
+
+                    row.innerHTML = `
+                        <td>${student.name}</td>
+                        <td>${student.registerNumber}</td>
+                        <td>${student.cgpa}</td>
+                        <td>${formatDate(student.startDate)}</td>
+                        <td>${formatDate(student.endDate)}</td>
+                        <td>${student.collegeName}</td>
+                        <td><a href="${student.file1}" target="_blank">View File1</a></td>
+                        <td><a href="${student.file2}" target="_blank">View File2</a></td>
+                        <td>${student.numberOfODTaken || 0}</td>
+                        <td>
+                            <button class="accept-button" onclick="acceptUser(this)">Approve</button>
+                            <button class="reject-button" onclick="rejectUser(this)">Reject</button>
+                        </td>
+                    `;
+
+                    // Apply stored status
+            if (storedStatus === 'accepted') {
+                row.dataset.status = 'accepted';
+                row.classList.add('disabled');
+                row.querySelector('.accept-button').disabled = true;
+                row.querySelector('.accept-button').style.backgroundColor = 'darkgreen';
+                row.querySelector('.accept-button').style.color = 'white';
+                row.querySelector('.reject-button').disabled = true;
+                moveToEnd(row); // Keep the accepted row at the end
+            } else if (storedStatus === 'rejected') {
+                row.dataset.status = 'rejected';
+                row.classList.add('disabled');
+                row.querySelector('.reject-button').disabled = true;
+                row.querySelector('.reject-button').style.backgroundColor = 'darkred';
+                row.querySelector('.reject-button').style.color = 'white';
+                row.querySelector('.accept-button').disabled = true;
+                moveToEnd(row); // Keep the rejected row at the end
+            }
+
+                    tableBody.appendChild(row);
+                });
+
+            } catch (error) {
+                console.error('Error fetching students:', error);
+            }
+        }
+
+        function moveToEnd(row) {
+            const tableBody = document.getElementById('userTableBody');
+            tableBody.appendChild(row); // Move the row to the end
+        }
+
+        async function acceptUser(button) {
+    const row = button.closest('tr');
+    if (row.dataset.status) return; // If status is already set, return
+
+    const studentId = row.dataset.id; // Assume row has data-id attribute with student ID
+    
+    const studentData = {
+        id: studentId,
+        name: row.children[0].textContent, // Adjust based on actual structure
+        registerNumber: row.children[1].textContent,
+        startDate: row.children[3].textContent,
+        endDate: row.children[4].textContent,
+        collegeName: row.children[5].textContent
+    };
+
+    row.dataset.status = 'accepted';
+    row.classList.add('disabled'); // Disable row
+
+    // Disable action buttons
+    button.disabled = true;
+    button.style.backgroundColor = 'darkgreen'; // Indicate acceptance
+    button.style.color = 'white';
+    button.parentElement.querySelector('.reject-button').disabled = true;
+    
+    moveToEnd(row)
+    // Store status in localStorage
+    localStorage.setItem(`student_${studentId}`, 'accepted');
+
+    // Update status in mentor backend
+    try {
+        await fetch('http://localhost:3001/updateStudentStatus', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id: studentId, status: 'accepted' }),
+        });
+
+        // Synchronize status with class incharge backend
+        await fetch('http://localhost:3003/syncStudent', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            // body: JSON.stringify({
+            //     id: studentId,
+            //     status: 'pending', // Status for class incharge review
+            // }),
+        });
+
+    } catch (error) {
+        console.error('Error updating status:', error);
+    }
+}
+
+
+        async function rejectUser(button) {
+            const row = button.closest('tr');
+            if (row.dataset.status) return; // If status is already set, return
+
+            const studentId = row.dataset.id; // Assume row has data-id attribute with student ID
+            
+            row.dataset.status = 'rejected';
+            row.classList.add('disabled'); // Disable row
+            
+            // Disable action buttons
+            button.disabled = true;
+            button.style.backgroundColor = 'darkred'; // Indicate rejection
+            button.style.color = 'white';
+            button.parentElement.querySelector('.accept-button').disabled = true;
+            
+            moveToEnd(row); // Move row to the end
+
+             // Store status in localStorage
+    localStorage.setItem(`student_${studentId}`, 'rejected');
+
+
+            // Update status in backend
+            try {
+                await fetch('http://localhost:3001/updateStudentStatus', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ id: studentId, status: 'rejected' }),
+                });
+                await fetch('http://localhost:3003/removeStudent', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id: studentId }),
+        });
+            } catch (error) {
+                console.error('Error updating status:', error);
+            }
+        }
+
+        window.onload = fetchStudents;
+    </script>
+</body>
+</html>

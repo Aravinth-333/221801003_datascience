@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Student Registration Form </title>
+  <style>
+    form {
+      margin: auto;
+      width: min(600px, 80%);
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+    }
+
+    h2 {
+      text-align: center;
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="datetime-local"],
+    input[type="url"],
+    textarea,
+    select,
+    #file1,
+    #file2
+    {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      box-sizing: border-box;
+      opacity: 0.5;
+      transition: all 0.3s ease;
+    }
+    .input-container {
+  position: relative;
+  display: inline-block; /* Adjust this to fit your layout needs */
+}
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="datetime-local"]:focus,
+    input[type="url"]:focus,
+    textarea:focus,
+    select:focus {
+      border-color: #ddd;
+      outline: none;
+    }
+
+    textarea {
+      height: 100px;
+      resize: vertical;
+      background-color: transparent;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: center;
+    }
+
+    .buttons button {
+      background-color: #854d28;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      width: 150px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+
+    .buttons button:hover {
+      background-color: #6e4225;
+      transition: background 0.3s, transform 0.3s;
+    }
+    .cgpa {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      box-sizing: border-box;
+      opacity: 0.5;
+      color: #ffce54;
+    }
+    .valid {
+  border-color: green !important;
+border-radius: 2px;
+}
+
+.invalid {
+  border-color: red !important;
+  /* background-color: #fde7e7 !important; */
+}
+
+  </style>
+</head>  
+<body style="background-color: #000;">
+  <link rel="stylesheet" href="design1.css">
+  <form action="/register" method="post">
+    <h2>ON-DUTY REGISTRATION FORM</h2>
+
+    <label for="name">Name (With Initial):</label>
+    <input type="text" id="name" name="name" required>
+    
+    <p id="name-exist-message" style="color: red;"></p>
+
+    <label for="register-number">Register Number:</label>
+    <input type="text" id="register-number" name="registerNumber" required>
+    
+    <label for="year">Year:</label>
+    <select id="year" name="year" required>
+      <option value="">Select Your Year</option>
+      <option value="1st year">1st year</option>
+      <option value="2nd year">2nd year</option>
+      <option value="3rd year">3rd year</option>
+      <option value="4th year">4th year</option>
+    </select>
+    
+    <label for="email">Email Address:</label>
+    <input type="email" id="email" name="email" required disabled>
+    <label for="cgpa">Enter Your CGPA:</label>
+    <input type="number" id="cgpa" name="cgpa" class="cgpa" max="10" min="6" step="0.01" required>
+    
+    <label for="eventtype">Event Type:</label>
+    <select id="eventtype" name="eventType" required>
+      <option value="">Select type</option>
+      <option value="Internal">Internal</option>
+      <option value="External">External</option>
+    </select>
+    
+    <label for="collegename">College Name:</label>
+    <input type="text" id="collegename" name="collegeName" required>
+    
+    <label for="start-date">Event Start Date:</label>
+    <input type="datetime-local" id="start-date" name="startDate" class="datetime" required>
+    
+    <label for="end-date">Event End Date:</label>
+    <input type="datetime-local" id="end-date" name="endDate" class="datetime" required>
+    
+    <label for="file1">Upload File1:</label>
+    <input type="url" id="file1" name="file1" placeholder="Google Drive URL" required>
+    
+    <label for="file2">Upload File2:</label>
+    <input type="url" id="file2" name="file2" placeholder="Google Drive URL" required>
+    
+    <label for="description">Description:</label>
+    <textarea id="description" name="description" maxlength="250" style="font-size: medium; color:#fff;"></textarea>
+    
+
+  
+    <div class="buttons">
+      <button type="reset">Reset</button>
+      <button type="submit">Submit</button>
+    </div>
+  </form>  
+  <script src="registration.js"></script>
+</body>
+</html>
