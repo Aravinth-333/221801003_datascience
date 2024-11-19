@@ -1,1 +1,1 @@
-# 221801003_datascience
+# 221801003_datascience_miniproject
